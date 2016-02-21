@@ -1,0 +1,53 @@
+{
+  "builders": [{
+    "type": "virtualbox-iso",
+    "guest_os_type": "Ubuntu_64",
+    "iso_url": "http://releases.ubuntu.com/14.04/ubuntu-14.04.4-server-amd64.iso",
+    "iso_checksum": "3ffb7a3690ce9a07ac4a4d1b829f990681f7e47d",
+    "iso_checksum_type": "sha256",
+    "output_directory": "output-ubuntu-14.04.4-amd64",
+    "vm_name": "packer-ubuntu-14.04.4-amd64",
+    "disk_size": "{{user `disk_size`}}",
+    "headless": "{{user `headless`}}",
+    "http_directory": "http",
+    "boot_wait": "5s",
+    "boot_command": [
+      "<esc><wait>",
+      "<esc><wait>",
+      "<enter><wait>",
+      "install ",
+      "auto-install/enable=true ",
+      "debconf/priority=critical ",
+      "preseed/url=http://{{.HTTPIP}}:{{.HTTPPort}}/ubuntu-14.04/preseed.cfg ",
+      "biosdevname=0 ",
+      "<enter>"
+    ],
+    "ssh_wait_timeout": "60m",
+    "ssh_username": "vagrant",
+    "ssh_password": "vagrant",
+    "shutdown_command": "sudo poweroff",
+    "vboxmanage": [
+      ["modifyvm", "{{.Name}}", "--memory", "{{user `memory`}}"],
+      ["modifyvm", "{{.Name}}", "--cpus", "{{user `cpus`}}"]
+    ]
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "scripts": [
+      "scripts/ubuntu/base.sh",
+      "scripts/ubuntu/virtualbox.sh"
+    ]
+  }],
+  "post-processors": [{
+    "type": "vagrant",
+    "compression_level": "{{user `compression_level`}}",
+    "output": "demo-ubuntu-14.04.4-amd64.box"
+  }],
+  "variables": {
+    "compression_level": "1",
+    "cpus": "2",
+    "disk_size": "40000",
+    "headless": "false",
+    "memory": "8192"
+  }
+}
